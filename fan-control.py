@@ -92,6 +92,12 @@ def handle_email(temp, time_warn, time_crit):
 				send_mail_warn(temp)
 	return
 
+def send_mail_warn(temp):
+	msg = MIMEText(body_warn)
+	msg_to = rcp_warn
+	msg['Subject'] = subj_warn
+	msg['From']
+
 
 # Name: check_temperature
 # Function: Read temperature from sensor
