@@ -66,9 +66,11 @@ temp_max = 29 # Temperature, at which the maximum value is on the DAC
 # There should be no need to change anything below this line for configuration purposes!
 
 # **Imports**
-import sys
-import time
-import smbus
+import sys        # writing to stderr and exiting cleanly
+import syslog     # writing events to syslog
+import time       # sleep()
+import smbus      # access to i2c
+import threading  # putting suff into threads so it does not block other functions
 
 # **Functions**
 # Name: send_mail
@@ -80,7 +82,12 @@ def handle_email(temp, time_warn, time_crit):
 # Name: check_temperature
 # Function: Read temperature from sensor
 def check_temperature(addr):
-	temp = 20
+	temp = bus.read_word_data(addr,0x05) # Read a 16bit word from register 0x05
+	# We need to byte swap and shift the output
+	hi = ( temp & 0x000F ) << 4 # We throw away th upper nibble which contains status und sign!
+	lo = ( temp & 0xFF00 ) >> 8 # we take the "lower" byte which contains also contains the fractionals in the lower nibble
+	lo = lo / 16.0 # the lower nibble is fractions, so we "shift the decimal point"
+	temp = hi + lo
 	return temp
 
 
@@ -92,6 +99,7 @@ def dac_write(bus, address, value):
 	bus.write_byte_data(address, hi, lo)
 	return
 
+
 # Name: dac_sanitize_value
 # Function: checks and coerces the DAC-Value into the allowed range
 def sanitize_dac_value(value):
@@ -102,3 +110,12 @@ def sanitize_dac_value(value):
 	return value
 
 
+# Name: calculate_output
+# Function: calculates the output value dependent on the temperature
+def calculate_output(temperature):
+	output = 2047
+	return output
+
+
+
+	
