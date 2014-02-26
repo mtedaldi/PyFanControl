@@ -8,7 +8,7 @@ fan-control.py will control the speed of the fan of the heat
 exchanger inside a cooling rack.
 
 The original system by rittal has a fan with constant speed. 
-We've added an inverter (Siemens SINAMICS G110 0.25kW and 
+We've added an inverter (Siemens SINAMICS G110 0.25kW) and 
 configured it for an output frequency of 30-55Hz (depending on 
 the voltage on the linear voltage input).
 
