@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Simple munin-node module to read the temperature from
+# a sensor connected by i2c
+
+case $1 in
+    config)
+        cat <<'EOM'
+graph_title Temperature Sensor
+graph_vlabel temperature
+temperature.label temperature
+graph_category sensors
+temperature.warning 25
+temperature.critical 28
+EOM
+	exit 0;;
+esac
+printf "temperature.value "
+python /usr/share/munin/plugins/temperature.py
+
