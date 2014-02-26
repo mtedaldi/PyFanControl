@@ -12,12 +12,23 @@
 # Copyright Marco Tedaldi, University of Zurich, 2014
 # <marco.tedaldi@gmail.com>
 # 
+# Goal:
+# Program to control the temperature inside the cooled rack by
+# adjusting the fan speed.
+# What this program does:
+# - checking the temperature (not implemented yet)
+# - setting the DAC output voltage (not implemented yet)
+# - sending emails if temperature exceeds limits (not implemented yet)
+# - feeding the watchdog (not implemented yet)
+
+
 
 # **CONFIGURATION**
 # Settings, that can be changed
 #
 # **Hardware**
 addr_t = 0x19 # i2c Address of the temperature Sensor
+bus = 1 # i2c bus to which the sensors are attached
 # Note: Add 0x18 to the address set on A0-A3
 
 addr_v = 0x60 # i2c Address of the DAC
@@ -29,7 +40,7 @@ temp_crit = 28.0 # Temperature, at which a critical message is issued
 # **Mail**
 # rcp_warn: An array of addresses to send an email when the warning temperature is exceeded
 rcp_warn = ['tedaldi@hifo.uzh.ch', 'kasper@hifo.uzh.ch']
-subj_warn = "Warning! Temperature in Laser Cabinet H37"
+subj_warn = "Warning! Temperature in laser cabinet H37"
 body_warn = "This is just a warning that temperature in the rack in H37 has exceeded " + str(temp_warn) + " degree C"
 warn_repeat = 60*60*24 # Seconds after which a warning is sent again
 
@@ -50,5 +61,44 @@ DAC_max = 4095 # Maximal value of the DAC output
 temp_min = 20 # Temperature, at which the minimum value is on the DAC
 temp_max = 29 # Temperature, at which the maximum value is on the DAC
 
+
+# **Code **
+# There should be no need to change anything below this line for configuration purposes!
+
+# **Imports**
+import sys
+import time
+import smbus
+
+# **Functions**
+# Name: send_mail
+# Function: Checks if an email (warning or critical has to be sent)
+def handle_email(temp, time_warn, time_crit):
+	return
+
+
+# Name: check_temperature
+# Function: Read temperature from sensor
+def check_temperature(addr):
+	temp = 20
+	return temp
+
+
+# Name: dac_write
+# Function: writes the voltage value to the DAC
+def dac_write(bus, address, value):
+	lo = int(value & 0x00FF)
+	hi = int((value & 0x0F00) >> 8)
+	bus.write_byte_data(address, hi, lo)
+	return
+
+# Name: dac_sanitize_value
+# Function: checks and coerces the DAC-Value into the allowed range
+def sanitize_dac_value(value):
+	if (value > 4095):
+		value = 4095
+	if (value < 0):
+		value = 0
+	return value
 
 
