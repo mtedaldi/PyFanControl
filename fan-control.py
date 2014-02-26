@@ -92,6 +92,10 @@ def handle_email(temp, time_warn, time_crit):
 				send_mail_warn(temp)
 	return
 
+# Name: send_mail_warn
+# Function: formats and sends the warning email
+# It might be a good Idea to call this Function as a thread to prevent it from
+# blocking the execution of the rest of the software.
 def send_mail_warn(temp):
 	msg = MIMEText(body_warn)
 	msg_to = rcp_warn
