@@ -70,12 +70,26 @@ import sys        # writing to stderr and exiting cleanly
 import syslog     # writing events to syslog
 import time       # sleep()
 import smbus      # access to i2c
+import smtplib    # Sending the mails
+from email.mime.text import MIMIText 
 import threading  # putting suff into threads so it does not block other functions
 
 # **Functions**
 # Name: send_mail
 # Function: Checks if an email (warning or critical has to be sent)
 def handle_email(temp, time_warn, time_crit):
+	if time_warn > 0:
+		time_warn = time_warn - 1
+	if time_crit > 0:
+		time_crit = time_crit - 1
+	if temp > temp_crit:
+		if time_crit = 0:
+			send_mail_crit(temp)
+	else:
+		if temp > temp_warn:
+			time_crit = 0
+			if time_warn = 0:
+				send_mail_warn(temp)
 	return
 
 
@@ -113,9 +127,15 @@ def sanitize_dac_value(value):
 # Name: calculate_output
 # Function: calculates the output value dependent on the temperature
 def calculate_output(temperature):
-	output = 2047
+	if temperature < temp_min:
+		output = DAC_min
+	else:
+		if temperature > temp_max:
+			output = DAC_max
+		else:
+			output = (((temperature - temp_min)/(temp_max - temp_min))*(DAC_max-DACmin))+DAC_min
+			output = 2047
 	return output
 
 
 
-	
