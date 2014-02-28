@@ -47,53 +47,53 @@ def get_temperature(addr):
   return temp
 
 def init_net(port):
-	try:
-		s = socket.socket()
-		s.bind(("0.0.0.0",port))
-		s.listen(5)
-	except:
-		sys.stderr.write("\nSomething went wrong while trying to set up Network Socket:\n")
-		print "Error:", sys.exc_info()[1]
-		sys.exit(7777)
-	return s
+    try:
+        s = socket.socket()
+        s.bind(("0.0.0.0",port))
+        s.listen(5)
+    except:
+        sys.stderr.write("\nSomething went wrong while trying to set up Network Socket:\n")
+        print "Error:", sys.exc_info()[1]
+        sys.exit(7777)
+    return s
 
 
 def handle_connection(conn, r_addr, s_addr):
-	try:
-		print 'Got a connection from', r_addr 
-		temperature = str(get_temperature(s_addr)) + '\n'
-		conn.send(temperature)
-		conn.close()
-	except:
-		sys.stderr.write("An unknow error has occured! Terminating...\n")
-		print "Error: ", sys.exc_info()[1]
+    try:
+        print 'Got a connection from', r_addr 
+        temperature = str(get_temperature(s_addr)) + '\n'
+        conn.send(temperature)
+        conn.close()
+    except:
+        sys.stderr.write("An unknow error has occured! Terminating...\n")
+        print "Error: ", sys.exc_info()[1]
 
 
 
 def main():
-	sock = init_net(port)
-	print "Waiting for connections on port " + str(port)
+    sock = init_net(port)
+    print "Waiting for connections on port " + str(port)
 
-	while True:
-		try:
-			c, addr = sock.accept()
-			t = threading.Thread(target=handle_connection, args = (c, addr, address) )
-			t.daemon = True
-			t.start()
-			nthreads = threading.activeCount()
-			print "Threads open: " + str(nthreads)
-		except KeyboardInterrupt:
-			sys.stderr.write("\nReceived ctrl+c, will terminate\n")
-			sock.shutdown(socket.SHUT_RDWR)
-			sock.close()
-			sys.exit()
-		except:
-			sys.stderr.write("An unknow error has occured! Terminating...\n")
-			print "Error: ", sys.exc_info()[1]
-			sock.close()
-			sys.exit(1)
+    while True:
+        try:
+            c, addr = sock.accept()
+            t = threading.Thread(target=handle_connection, args = (c, addr, address) )
+            t.daemon = True
+            t.start()
+            nthreads = threading.activeCount()
+            print "Threads open: " + str(nthreads)
+        except KeyboardInterrupt:
+            sys.stderr.write("\nReceived ctrl+c, will terminate\n")
+            sock.shutdown(socket.SHUT_RDWR)
+            sock.close()
+            sys.exit()
+        except:
+            sys.stderr.write("An unknow error has occured! Terminating...\n")
+            print "Error: ", sys.exc_info()[1]
+            sock.close()
+            sys.exit(1)
 
 
 if __name__ == "__main__":
-	main();
+    main();
 

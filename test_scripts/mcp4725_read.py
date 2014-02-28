@@ -18,10 +18,10 @@ bus = smbus.SMBus(1)
 address = 0x60 # I2C address of MCP23017
 
 #for i in range(0,4096):
-#	lo = i & 0x00FF
-#	hi = (i & 0x0F00) >> 8
-#	print i, hi, lo
-#	bus.write_byte_data(address, hi, lo)
+    #lo = i & 0x00FF
+    #hi = (i & 0x0F00) >> 8
+    #print i, hi, lo
+    #bus.write_byte_data(address, hi, lo)
 #        time.sleep(0.01)
 
 

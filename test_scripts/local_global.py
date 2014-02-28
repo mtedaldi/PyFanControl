@@ -9,10 +9,10 @@ def change_value(val):
     return
 
 def main():
-	a = [0]
-	a[0] = 5
-	print str(a) + "\n"
-	change_value(a)
-	print str(a) + "\n"
+    a = [0]
+    a[0] = 5
+    print str(a) + "\n"
+    change_value(a)
+    print str(a) + "\n"
 
 main()

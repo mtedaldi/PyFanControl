@@ -78,74 +78,74 @@ import threading  # putting suff into threads so it does not block other functio
 # Name: send_mail
 # Function: Checks if an email (warning or critical has to be sent)
 def handle_email(temp, time_warn, time_crit):
-	if time_warn > 0:
-		time_warn = time_warn - 1
-	if time_crit > 0:
-		time_crit = time_crit - 1
-	if temp > temp_crit:
-		if time_crit = 0:
-			send_mail_crit(temp)
-	else:
-		if temp > temp_warn:
-			time_crit = 0
-			if time_warn = 0:
-				send_mail_warn(temp)
-	return
+    if time_warn > 0:
+        time_warn = time_warn - 1
+    if time_crit > 0:
+        time_crit = time_crit - 1
+    if temp > temp_crit:
+        if time_crit = 0:
+            send_mail_crit(temp)
+    else:
+        if temp > temp_warn:
+            time_crit = 0
+            if time_warn = 0:
+                send_mail_warn(temp)
+    return
 
 # Name: send_mail_warn
 # Function: formats and sends the warning email
 # It might be a good Idea to call this Function as a thread to prevent it from
 # blocking the execution of the rest of the software.
 def send_mail_warn(temp):
-	msg = MIMEText(body_warn)
-	msg_to = rcp_warn
-	msg['Subject'] = subj_warn
-	msg['From']
+    msg = MIMEText(body_warn)
+    msg_to = rcp_warn
+    msg['Subject'] = subj_warn
+    msg['From'] = mag_from
 
 
 # Name: check_temperature
 # Function: Read temperature from sensor
 def check_temperature(addr):
-	temp = bus.read_word_data(addr,0x05) # Read a 16bit word from register 0x05
-	# We need to byte swap and shift the output
-	hi = ( temp & 0x000F ) << 4 # We throw away th upper nibble which contains status und sign!
-	lo = ( temp & 0xFF00 ) >> 8 # we take the "lower" byte which contains also contains the fractionals in the lower nibble
-	lo = lo / 16.0 # the lower nibble is fractions, so we "shift the decimal point"
-	temp = hi + lo
-	return temp
+    temp = bus.read_word_data(addr,0x05) # Read a 16bit word from register 0x05
+    # We need to byte swap and shift the output
+    hi = ( temp & 0x000F ) << 4 # We throw away th upper nibble which contains status und sign!
+    lo = ( temp & 0xFF00 ) >> 8 # we take the "lower" byte which contains also contains the fractionals in the lower nibble
+    lo = lo / 16.0 # the lower nibble is fractions, so we "shift the decimal point"
+    temp = hi + lo
+    return temp
 
 
 # Name: dac_write
 # Function: writes the voltage value to the DAC
 def dac_write(bus, address, value):
-	lo = int(value & 0x00FF)
-	hi = int((value & 0x0F00) >> 8)
-	bus.write_byte_data(address, hi, lo)
-	return
+    lo = int(value & 0x00FF)
+    hi = int((value & 0x0F00) >> 8)
+    bus.write_byte_data(address, hi, lo)
+    return
 
 
 # Name: dac_sanitize_value
 # Function: checks and coerces the DAC-Value into the allowed range
 def sanitize_dac_value(value):
-	if (value > 4095):
-		value = 4095
-	if (value < 0):
-		value = 0
-	return value
+    if (value > 4095):
+        value = 4095
+    if (value < 0):
+        value = 0
+    return value
 
 
 # Name: calculate_output
 # Function: calculates the output value dependent on the temperature
 def calculate_output(temperature):
-	if temperature < temp_min:
-		output = DAC_min
-	else:
-		if temperature > temp_max:
-			output = DAC_max
-		else:
-			output = (((temperature - temp_min)/(temp_max - temp_min))*(DAC_max-DACmin))+DAC_min
-			output = 2047
-	return output
+    if temperature < temp_min:
+        output = DAC_min
+    else:
+        if temperature > temp_max:
+            output = DAC_max
+        else:
+            output = (((temperature - temp_min)/(temp_max - temp_min))*(DAC_max-DACmin))+DAC_min
+            output = 2047
+    return output
 
 
 
