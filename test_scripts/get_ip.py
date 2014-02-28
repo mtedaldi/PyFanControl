@@ -10,6 +10,5 @@ def get_ip():
     s.close
     return ip
 
-print get_ip()
 
 
