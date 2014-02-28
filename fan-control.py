@@ -69,7 +69,7 @@ temp_max = 29 # Temperature, at which the maximum value is on the DAC
 import sys        # writing to stderr and exiting cleanly
 import syslog     # writing events to syslog
 import time       # sleep()
-import smbus      # access to i2c
+import s_mbus      # access to i2c
 import smtplib    # Sending the mails
 from email.mime.text import MIMIText 
 import threading  # putting suff into threads so it does not block other functions
@@ -100,7 +100,25 @@ def send_mail_warn(temp):
     msg = MIMEText(body_warn)
     msg_to = rcp_warn
     msg['Subject'] = subj_warn
-    msg['From'] = mag_from
+    msg['From'] = msg_from
+    msg['To'] = ", ".join(rcp_warn)
+    send_mail(msg_to, msg)
+    return 
+
+def send_mail_crit(temp):
+    msg = MIMEText(body_crit)
+    msg_to = rcp_crit
+    msg['Subject'] = sunj_crit
+    msg['From'] = msg_from
+    msg['To'] = ", ".join(rcp_crit)
+    send_mail(msg_to, msg)
+    return
+
+def send_mail(msg_to, msg):
+    s = smtplib.SMTP(smtp_srv)
+    s.sendmail(msg_from, msg_to, msg.as_string())
+    s.quit()
+    return
 
 
 # Name: check_temperature
