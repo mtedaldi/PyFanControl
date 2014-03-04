@@ -18,7 +18,7 @@ import getopt
 
 
 # Read the temperature from the given address
-def get_temperature(addr):
+def get_temperature(bus, addr):
 # Read a 16bit word from register 0x05
   temp = bus.read_word_data(addr,0x05)
 # We need to byte swap and shift the output
@@ -36,7 +36,7 @@ def get_temperature(addr):
 def main():
   address = 0x19
   bus = smbus.SMBus(1)
-  temperature = get_temperature(address)
+  temperature = get_temperature(bus, address)
   print temperature
   return
 
