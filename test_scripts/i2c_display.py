@@ -13,7 +13,7 @@ address = 0x3E
 # Function: Write the command "0x01" to the display which clears the display
 def clear_display(bus, address):
     bus.write_byte_data(address, 0x00, 0x01)
-    print "cleared"
+#    print "cleared"
     return
 
 
@@ -27,7 +27,7 @@ def init_display(bus, address):
     bus.write_byte_data(address, 0x00, 0x54) # Icon=off, booster=on, Contrast bits 5+4 = 0
     bus.write_byte_data(address, 0x00, 0x6F) # Switch on follower circuit and set ratio to 7
     bus.write_byte_data(address, 0x00, 0x0C) # Cursor on
-    print "initialized"
+#    print "initialized"
     clear_display(bus, address)
     return
 
@@ -35,7 +35,7 @@ def init_display(bus, address):
 # Function: Write a character to the current position
 def display_write_char(bus, address, character):
     bus.write_byte_data(address, 0x40, character)
-    print '"' + chr(character) + '" written'
+#    print '"' + chr(character) + '" written'
     return
 
 # Name: display_write_string

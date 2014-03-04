@@ -12,6 +12,8 @@ def main():
     bus = smbus.SMBus(bus_nr)
     i2c_display.init_display(bus, address)
     i2c_display.display_write_string(bus, address, 0, ip)
+    content = "Hallo Martin"
+    i2c_display.display_write_string(bus, address, 1, content)
     return
 
 

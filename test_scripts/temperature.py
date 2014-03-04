@@ -39,6 +39,6 @@ def main():
   return
 
 # calling the "Main" function
-main();
-
+if __name__ == "__main__":
+        main();
 
