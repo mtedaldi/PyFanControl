@@ -71,9 +71,9 @@ temp_max = 29 # Temperature, at which the maximum value is on the DAC
 import sys        # writing to stderr and exiting cleanly
 import syslog     # writing events to syslog
 import time       # sleep()
-import s_mbus      # access to i2c
+import smbus      # access to i2c
 import smtplib    # Sending the mails
-from email.mime.text import MIMIText 
+from email.mime.text import MIMEText 
 import threading  # putting suff into threads so it does not block other functions
 import i2c_display
 import get_ip
@@ -87,12 +87,12 @@ def handle_email(temp, time_warn, time_crit):
     if time_crit > 0:
         time_crit = time_crit - 1
     if temp > temp_crit:
-        if time_crit = 0:
+        if time_crit == 0:
             send_mail_crit(temp)
     else:
         if temp > temp_warn:
             time_crit = 0
-            if time_warn = 0:
+            if time_warn == 0:
                 send_mail_warn(temp)
     return
 
@@ -165,8 +165,8 @@ def calculate_output(temperature):
         if temperature > temp_max:
             output = DAC_max
         else:
-            output = (((temperature - temp_min)/(temp_max - temp_min))*(DAC_max-DACmin))+DAC_min
-    return output
+            output = (((temperature - temp_min)/(temp_max - temp_min))*(DAC_max-DAC_min))+DAC_min
+    return int(output)
 
 
 def main():
@@ -174,11 +174,17 @@ def main():
     bus = smbus.SMBus(bus_nr)
     i2c_display.init_display(bus, addr_d)
     i2c_display.display_write_string(bus, addr_d, 0, ip)
+    print ip
+    print "1234567890123456"
     while True:
         try:
             t = check_temperature(bus, addr_t)
             dac_value = calculate_output(t)
-            line2 = "T: " + str(t) + "C DAC: " + str(dac_value)
+            dac_write(bus, addr_v, dac_value)
+            line2 = 'T:{0:2.4f}'.format(t) + ' D:{0:4d}'.format(dac_value)
+            i2c_display.display_write_string(bus, addr_d, 1, line2)
+            print line2
+            time.sleep(1)
         except KeyboardInterrupt:
             sys.stderr.write("\nReceived ctrl+c, will terminate\n")
             sys.exit()
@@ -186,7 +192,6 @@ def main():
             sys.stderr.write("An unknow error has occured! Terminating...\n")
             print "Error: ", sys.exc_info()[1]
             sys.exit(1)
-    time.sleep(1)
     return
 
 
