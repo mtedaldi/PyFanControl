@@ -15,7 +15,7 @@ def main():
     i2c_display.init_display(bus, displ_addr)
     i2c_display.display_write_string(bus, displ_addr, 0, ip)
     temp = temperature.get_temperature(bus, temp_addr)
-    line2 = "Temperature: " + str(temp) + "C"
+    line2 = "T: " + str(temp) + "C"
     i2c_display.display_write_string(bus, displ_addr, 1, line2)
     return
 
