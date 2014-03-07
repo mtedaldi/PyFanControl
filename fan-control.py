@@ -28,11 +28,13 @@
 #
 # **Hardware**
 addr_t = 0x19 # i2c Address of the temperature Sensor
-bus = 1 # i2c bus to which the sensors are attached
+bus_nr = 1 # i2c bus to which the sensors are attached
 # Note: Add 0x18 to the address set on A0-A3
 
 addr_v = 0x60 # i2c Address of the DAC
 # Note: Add 0x60 to the address set with A0
+
+addr_d = 0x3E #i2c address of display
 
 temp_warn = 25.5 # Temperature at which a warning message is issued
 temp_crit = 28.0 # Temperature, at which a critical message is issued
@@ -73,6 +75,8 @@ import s_mbus      # access to i2c
 import smtplib    # Sending the mails
 from email.mime.text import MIMIText 
 import threading  # putting suff into threads so it does not block other functions
+import i2c_display
+import get_ip
 
 # **Functions**
 # Name: send_mail
@@ -123,7 +127,7 @@ def send_mail(msg_to, msg):
 
 # Name: check_temperature
 # Function: Read temperature from sensor
-def check_temperature(addr):
+def check_temperature(bus, addr):
     temp = bus.read_word_data(addr,0x05) # Read a 16bit word from register 0x05
     # We need to byte swap and shift the output
     hi = ( temp & 0x000F ) << 4 # We throw away th upper nibble which contains status und sign!
@@ -162,8 +166,31 @@ def calculate_output(temperature):
             output = DAC_max
         else:
             output = (((temperature - temp_min)/(temp_max - temp_min))*(DAC_max-DACmin))+DAC_min
-            output = 2047
     return output
 
 
+def main():
+    ip = get_ip.get_ip()
+    bus = smbus.SMBus(bus_nr)
+    i2c_display.init_display(bus, addr_d)
+    i2c_display.display_write_string(bus, addr_d, 0, ip)
+    while True:
+        try:
+            t = check_temperature(bus, addr_t)
+            dac_value = calculate_output(t)
+            line2 = "T: " + str(t) + "C DAC: " + str(dac_value)
+        except KeyboardInterrupt:
+            sys.stderr.write("\nReceived ctrl+c, will terminate\n")
+            sys.exit()
+        except:
+            sys.stderr.write("An unknow error has occured! Terminating...\n")
+            print "Error: ", sys.exc_info()[1]
+            sys.exit(1)
+    time.sleep(1)
+    return
+
+
+
+if __name__ == "__main__":
+    main();
 
