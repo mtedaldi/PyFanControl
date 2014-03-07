@@ -36,7 +36,7 @@ addr_v = 0x60 # i2c Address of the DAC
 
 addr_d = 0x3E #i2c address of display
 
-temp_warn = 25.5 # Temperature at which a warning message is issued
+temp_warn = 26.5 # Temperature at which a warning message is issued
 temp_crit = 28.0 # Temperature, at which a critical message is issued
 
 # **Mail**
@@ -170,6 +170,8 @@ def calculate_output(temperature):
 
 
 def main():
+    time_w = 0
+    time_c = 0
     ip = get_ip.get_ip()
     bus = smbus.SMBus(bus_nr)
     i2c_display.init_display(bus, addr_d)
@@ -184,6 +186,7 @@ def main():
             line2 = 'T:{0:2.4f}'.format(t) + ' D:{0:4d}'.format(dac_value)
             i2c_display.display_write_string(bus, addr_d, 1, line2)
             print line2
+            handle_email(t, time_w, time_c)
             time.sleep(1)
         except KeyboardInterrupt:
             sys.stderr.write("\nReceived ctrl+c, will terminate\n")
