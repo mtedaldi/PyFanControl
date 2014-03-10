@@ -41,13 +41,13 @@ temp_crit = 28.0 # Temperature, at which a critical message is issued
 
 # **Mail**
 # rcp_warn: An array of addresses to send an email when the warning temperature is exceeded
-rcp_warn = ['tedaldi@hifo.uzh.ch', 'kasper@hifo.uzh.ch']
+rcp_warn = ['tedaldi@hifo.uzh.ch']
 subj_warn = "Warning! Temperature in laser cabinet H37"
 body_warn = "This is just a warning that temperature in the rack in H37 has exceeded " + str(temp_warn) + " degree C"
 warn_repeat = 60*60*24 # Seconds after which a warning is sent again
 
 # rcp_crit: a list of addresses to send a critical temperature warning
-rcp_crit = ['tedaldi@hifo.uzh.ch', 'kasper@hifo.uzh.ch']
+rcp_crit = ['tedaldi@hifo.uzh.ch']
 subj_crit = "CRITICAL! Temperature in laser cabinet H37 too high!"
 body_crit = "The temperature in the laser rack in H37 has exceeded CRITICAL level of " + str(temp_crit) + "degree C!"
 body_crit = body_crit + "Immediate action required!"
@@ -89,12 +89,14 @@ def handle_email(temp, time_warn, time_crit):
     if temp > temp_crit:
         if time_crit == 0:
             send_mail_crit(temp)
+            time_crit = 1200
     else:
         if temp > temp_warn:
             time_crit = 0
             if time_warn == 0:
                 send_mail_warn(temp)
-    return
+                time_warn = 86400
+    return time_warn, time_crit
 
 # Name: send_mail_warn
 # Function: formats and sends the warning email
@@ -112,7 +114,7 @@ def send_mail_warn(temp):
 def send_mail_crit(temp):
     msg = MIMEText(body_crit)
     msg_to = rcp_crit
-    msg['Subject'] = sunj_crit
+    msg['Subject'] = subj_crit
     msg['From'] = msg_from
     msg['To'] = ", ".join(rcp_crit)
     send_mail(msg_to, msg)
@@ -224,25 +226,26 @@ def main():
             ]
     time_w = 0
     time_c = 0
-    fv = filtr(19, 25)
-    fv.set_filter(filt_coeff)
     ip = get_ip.get_ip()
     bus = smbus.SMBus(bus_nr)
     i2c_display.init_display(bus, addr_d)
     i2c_display.display_write_string(bus, addr_d, 0, ip)
+    t = check_temperature(bus, addr_t)
+    fv = filtr(19, t)
+    fv.set_filter(filt_coeff)
     print ip
     print "1234567890123456"
     while True:
         try:
-            t = check_temperature(bus, addr_t)
-            t = fv.filt(t)
+            tp = check_temperature(bus, addr_t)
+            t = fv.filt(tp)
             dac_value = calculate_output(t)
             dac_write(bus, addr_v, dac_value)
             line2 = 'T:{0:2.4f}'.format(t) + ' D:{0:4d}'.format(dac_value)
             i2c_display.display_write_string(bus, addr_d, 1, line2)
-            print line2
-            handle_email(t, time_w, time_c)
+            time_w, time_c = handle_email(t, time_w, time_c)
             time.sleep(1)
+            print line2 + " " + str(tp) + " " + str(time_w) + " " + str(time_c)
         except KeyboardInterrupt:
             sys.stderr.write("\nReceived ctrl+c, will terminate\n")
             sys.exit()
