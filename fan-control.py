@@ -169,9 +169,63 @@ def calculate_output(temperature):
     return int(output)
 
 
+# A class to filter the temperature values to reduce noise and increase resolution
+
+class filtr:
+    def __init__(self, nelements=16, defvalue=25):
+        self.history = []
+        self.f = []
+        for i in range(0, nelements):
+            self.history.append(defvalue)
+            self.f.append(1.0)
+
+    def filt(self, new_value):
+        self.history.append(new_value)
+        self.history.pop(0)
+        i = 0
+        fltsum = 0
+        fltval = 0
+        for val in self.f:
+            fltsum = fltsum + self.f[i]
+            fltval = fltval + (self.f[i] * self.history[i])
+            i = i + 1
+        new_value = fltval / fltsum
+        return new_value
+
+    def history(self):
+        return self.history
+
+    def set_filter(self, new_filt):
+        self.f = new_filt
+        return
+
+
 def main():
+    filt_coeff = [
+            0.005836310228843315,
+            0.018235835282369148,
+            0.026122022209528667,
+            0.04327394282699852,
+            0.05959485293788556,
+            0.07821170914051696,
+            0.09491593851808021,
+            0.10895605062142762,
+            0.1179999319917522,
+            0.12122948160286849,
+            0.1179999319917522,
+            0.10895605062142762,
+            0.09491593851808021,
+            0.07821170914051696,
+            0.05959485293788556,
+            0.04327394282699852,
+            0.026122022209528667,
+            0.018235835282369148,
+            0.005836310228843315
+            ]
     time_w = 0
     time_c = 0
+    fv = filtr(19, 25)
+    fv.set_filter(filt_coeff)
     ip = get_ip.get_ip()
     bus = smbus.SMBus(bus_nr)
     i2c_display.init_display(bus, addr_d)
@@ -181,6 +235,7 @@ def main():
     while True:
         try:
             t = check_temperature(bus, addr_t)
+            t = fv.filt(t)
             dac_value = calculate_output(t)
             dac_write(bus, addr_v, dac_value)
             line2 = 'T:{0:2.4f}'.format(t) + ' D:{0:4d}'.format(dac_value)
@@ -193,9 +248,10 @@ def main():
             sys.exit()
         except:
             sys.stderr.write("An unknow error has occured! Terminating...\n")
+            print "Error: ", sys.exc_info()[0]
             print "Error: ", sys.exc_info()[1]
+            print "Error: ", sys.exc_info()[2]
             sys.exit(1)
-    return
 
 
 
