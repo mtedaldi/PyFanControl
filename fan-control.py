@@ -39,19 +39,21 @@ addr_d = 0x3E #i2c address of display
 temp_warn = 26.5 # Temperature at which a warning message is issued
 temp_crit = 28.0 # Temperature, at which a critical message is issued
 
+sleeptime = 0.5 # The time between iterations of the control loop in seconds
+
 # **Mail**
 # rcp_warn: An array of addresses to send an email when the warning temperature is exceeded
 rcp_warn = ['tedaldi@hifo.uzh.ch']
 subj_warn = "Warning! Temperature in laser cabinet H37"
 body_warn = "This is just a warning that temperature in the rack in H37 has exceeded " + str(temp_warn) + " degree C"
-warn_repeat = 60*60*24 # Seconds after which a warning is sent again
+warn_repeat = 60*60*24 / sleeptime # Seconds after which a warning is sent again
 
 # rcp_crit: a list of addresses to send a critical temperature warning
 rcp_crit = ['tedaldi@hifo.uzh.ch']
 subj_crit = "CRITICAL! Temperature in laser cabinet H37 too high!"
 body_crit = "The temperature in the laser rack in H37 has exceeded CRITICAL level of " + str(temp_crit) + "degree C!"
 body_crit = body_crit + "Immediate action required!"
-crit_repeat = 60*20 # Seconds after which a critical condition warning is sent again
+crit_repeat = 60*20 / sleeptime # Seconds after which a critical condition warning is sent again
 
 msg_from = 'tedaldi@hifo.uzh.ch' # apparent sender of the message
 smtp_srv = 'smtp.uzh.ch' # Mail server to use to deliver the messages
@@ -199,42 +201,77 @@ class filtr:
 
     def set_filter(self, new_filt):
         self.f = new_filt
+        if len(self.f) > len(self.history):
+            for i in range(len(self.history), len(self.f)):
+                self.history.append(self.history[i - 1])
         return
 
 
 def main():
+    # ***Initalize the variables***
+    # The filter coefficients for the FIR-Filter
     filt_coeff = [
-            0.005836310228843315,
-            0.018235835282369148,
-            0.026122022209528667,
-            0.04327394282699852,
-            0.05959485293788556,
-            0.07821170914051696,
-            0.09491593851808021,
-            0.10895605062142762,
-            0.1179999319917522,
-            0.12122948160286849,
-            0.1179999319917522,
-            0.10895605062142762,
-            0.09491593851808021,
-            0.07821170914051696,
-            0.05959485293788556,
-            0.04327394282699852,
-            0.026122022209528667,
-            0.018235835282369148,
-            0.005836310228843315
+            -0.00406900049466597,
+            0.0014901583160827512,
+            0.0022278714276290482,
+            0.0034863421930641913,
+            0.005262349013769549,
+            0.007526937975321521,
+            0.010265872128229686,
+            0.013462614002518912,
+            0.017080624262474767,
+            0.021064542544973485,
+            0.025343688456984637,
+            0.029828825716452217,
+            0.034413765259578025,
+            0.03898213878353851,
+            0.04341086645098334,
+            0.047573306814647984,
+            0.0513458497439482,
+            0.05461325635763496,
+            0.05727219604594146,
+            0.059236523087357246,
+            0.06044200599455753,
+            0.060848468662696956,
+            0.06044200599455753,
+            0.059236523087357246,
+            0.05727219604594146,
+            0.05461325635763496,
+            0.0513458497439482,
+            0.047573306814647984,
+            0.04341086645098334,
+            0.03898213878353851,
+            0.034413765259578025,
+            0.029828825716452217,
+            0.025343688456984637,
+            0.021064542544973485,
+            0.017080624262474767,
+            0.013462614002518912,
+            0.010265872128229686,
+            0.007526937975321521,
+            0.005262349013769549,
+            0.0034863421930641913,
+            0.0022278714276290482,
+            0.0014901583160827512,
+            -0.00406900049466597
             ]
-    time_w = 0
-    time_c = 0
-    ip = get_ip.get_ip()
-    bus = smbus.SMBus(bus_nr)
-    i2c_display.init_display(bus, addr_d)
-    i2c_display.display_write_string(bus, addr_d, 0, ip)
-    t = check_temperature(bus, addr_t)
-    fv = filtr(19, t)
-    fv.set_filter(filt_coeff)
+    time_w = 0 # Initialize the timeout for warning messages
+    time_c = 0 # Initialize the timeout for repeatet crtitical messages
+
+
+    ip = get_ip.get_ip() # Get the IP-Address
+    bus = smbus.SMBus(bus_nr) # Make the bus object for communication with i2c devices
+    i2c_display.init_display(bus, addr_d) # Initialze the display
+    i2c_display.display_write_string(bus, addr_d, 0, ip) # Write the IP-Address to the first line on the display
+    t = check_temperature(bus, addr_t) # Read the tempearture a first time to initialize the filter
+    fv = filtr(len(filt_coeff), t) # Create the filter object
+    fv.set_filter(filt_coeff) # load the coefficients into the FIR filter
+    
+    # DEBUG Output
     print ip
     print "1234567890123456"
+
+# The real work is done in this loop!
     while True:
         try:
             tp = check_temperature(bus, addr_t)
@@ -244,7 +281,7 @@ def main():
             line2 = 'T:{0:2.4f}'.format(t) + ' D:{0:4d}'.format(dac_value)
             i2c_display.display_write_string(bus, addr_d, 1, line2)
             time_w, time_c = handle_email(t, time_w, time_c)
-            time.sleep(1)
+            time.sleep(sleeptime)
             print line2 + " " + str(tp) + " " + str(time_w) + " " + str(time_c)
         except KeyboardInterrupt:
             sys.stderr.write("\nReceived ctrl+c, will terminate\n")
