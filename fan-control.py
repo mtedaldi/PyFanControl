@@ -136,10 +136,13 @@ def send_mail(msg_to, msg):
 def check_temperature(bus, addr):
     temp = bus.read_word_data(addr,0x05) # Read a 16bit word from register 0x05
     # We need to byte swap and shift the output
+    sign = (temp & 0x0010) # Sign of the temperature
     hi = ( temp & 0x000F ) << 4 # We throw away th upper nibble which contains status und sign!
     lo = ( temp & 0xFF00 ) >> 8 # we take the "lower" byte which contains also contains the fractionals in the lower nibble
     lo = lo / 16.0 # the lower nibble is fractions, so we "shift the decimal point"
     temp = hi + lo
+    if sign <> 0: # If the temperature is <0
+        temp = temp - 256 # We have to fix the value thanks to 2s complement
     return temp
 
 
