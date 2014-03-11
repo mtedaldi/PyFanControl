@@ -79,6 +79,7 @@ from email.mime.text import MIMEText
 import threading  # putting suff into threads so it does not block other functions
 import i2c_display
 import get_ip
+import fir
 
 # **Functions**
 # Name: send_mail
@@ -173,38 +174,6 @@ def calculate_output(temperature):
     return int(output)
 
 
-# A class to filter the temperature values to reduce noise and increase resolution
-
-class filtr:
-    def __init__(self, nelements=16, defvalue=25):
-        self.history = []
-        self.f = []
-        for i in range(0, nelements):
-            self.history.append(defvalue)
-            self.f.append(1.0)
-
-    def filt(self, new_value):
-        self.history.append(new_value)
-        self.history.pop(0)
-        i = 0
-        fltsum = 0
-        fltval = 0
-        for val in self.f:
-            fltsum = fltsum + self.f[i]
-            fltval = fltval + (self.f[i] * self.history[i])
-            i = i + 1
-        new_value = fltval / fltsum
-        return new_value
-
-    def history(self):
-        return self.history
-
-    def set_filter(self, new_filt):
-        self.f = new_filt
-        if len(self.f) > len(self.history):
-            for i in range(len(self.history), len(self.f)):
-                self.history.append(self.history[i - 1])
-        return
 
 
 def main():
@@ -264,7 +233,7 @@ def main():
     i2c_display.init_display(bus, addr_d) # Initialze the display
     i2c_display.display_write_string(bus, addr_d, 0, ip) # Write the IP-Address to the first line on the display
     t = check_temperature(bus, addr_t) # Read the tempearture a first time to initialize the filter
-    fv = filtr(len(filt_coeff), t) # Create the filter object
+    fv = fir.filtr(len(filt_coeff), t) # Create the filter object
     fv.set_filter(filt_coeff) # load the coefficients into the FIR filter
     
     # DEBUG Output
