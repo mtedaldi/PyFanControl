@@ -230,8 +230,8 @@ def main():
 
     ip = get_ip.get_ip() # Get the IP-Address
     bus = smbus.SMBus(bus_nr) # Make the bus object for communication with i2c devices
-    i2c_display.init_display(bus, addr_d) # Initialze the display
-    i2c_display.display_write_string(bus, addr_d, 0, ip) # Write the IP-Address to the first line on the display
+    display = i2c_display.i2c_display(bus, addr_d) # Initialze the display
+    display.write_string(0, ip) # Write the IP-Address to the first line on the display
     t = check_temperature(bus, addr_t) # Read the tempearture a first time to initialize the filter
     fv = fir.filtr(len(filt_coeff), t) # Create the filter object
     fv.set_filter(filt_coeff) # load the coefficients into the FIR filter
@@ -248,7 +248,7 @@ def main():
             dac_value = calculate_output(t)
             dac_write(bus, addr_v, dac_value)
             line2 = 'T:{0:2.4f}'.format(t) + ' D:{0:4d}'.format(dac_value)
-            i2c_display.display_write_string(bus, addr_d, 1, line2)
+            display.write_string(1, line2)
             time_w, time_c = handle_email(t, time_w, time_c)
             time.sleep(sleeptime)
             print line2 + " " + str(tp) + " " + str(time_w) + " " + str(time_c)
