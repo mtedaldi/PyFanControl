@@ -71,7 +71,6 @@ temp_max = 29 # Temperature, at which the maximum value is on the DAC
 
 # **Imports**
 import sys        # writing to stderr and exiting cleanly
-import syslog     # writing events to syslog
 import time       # sleep()
 import smbus      # access to i2c
 import smtplib    # Sending the mails
