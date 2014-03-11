@@ -24,9 +24,9 @@ class i2c_display:
 
 
 
-# Name: clear_display
+# Name: clear
 # Function: Write the command "0x01" to the display which clears the display
-    def clear_display(self):
+    def clear(self):
         self.bus.write_byte_data(self.address, 0x00, 0x01)
         return
 

@@ -51,8 +51,8 @@ warn_repeat = 60*60*24 / sleeptime # Seconds after which a warning is sent again
 # rcp_crit: a list of addresses to send a critical temperature warning
 rcp_crit = ['tedaldi@hifo.uzh.ch']
 subj_crit = "CRITICAL! Temperature in laser cabinet H37 too high!"
-body_crit = "The temperature in the laser rack in H37 has exceeded CRITICAL level of " + str(temp_crit) + "degree C!"
-body_crit = body_crit + "Immediate action required!"
+body_crit = "The temperature in the laser rack in H37 has exceeded CRITICAL level of " + str(temp_crit) + " degree C!"
+body_crit = body_crit + "\nImmediate action required!"
 crit_repeat = 60*20 / sleeptime # Seconds after which a critical condition warning is sent again
 
 msg_from = 'tedaldi@hifo.uzh.ch' # apparent sender of the message
@@ -85,20 +85,20 @@ import fir
 # Name: send_mail
 # Function: Checks if an email (warning or critical has to be sent)
 def handle_email(temp, time_warn, time_crit):
-    if time_warn > 0:
+    if int(time_warn) > 0:
         time_warn = time_warn - 1
-    if time_crit > 0:
+    if int(time_crit) > 0:
         time_crit = time_crit - 1
     if temp > temp_crit:
         if time_crit == 0:
             send_mail_crit(temp)
-            time_crit = 1200
+            time_crit = int(crit_repeat)
     else:
         if temp > temp_warn:
             time_crit = 0
             if time_warn == 0:
                 send_mail_warn(temp)
-                time_warn = 86400
+                time_warn = int(warn_repeat)
     return time_warn, time_crit
 
 # Name: send_mail_warn
@@ -115,6 +115,7 @@ def send_mail_warn(temp):
     return 
 
 def send_mail_crit(temp):
+    #body_crit = body_crit + "\nTemperature: " + str(temp) + "degree C"
     msg = MIMEText(body_crit)
     msg_to = rcp_crit
     msg['Subject'] = subj_crit
@@ -229,28 +230,40 @@ def main():
 
 
     ip = get_ip.get_ip() # Get the IP-Address
+
     bus = smbus.SMBus(bus_nr) # Make the bus object for communication with i2c devices
     display = i2c_display.i2c_display(bus, addr_d) # Initialze the display
+    display.clear() # Clear the display
+
     display.write_string(0, ip) # Write the IP-Address to the first line on the display
+
     t = check_temperature(bus, addr_t) # Read the tempearture a first time to initialize the filter
     fv = fir.filtr(len(filt_coeff), t) # Create the filter object
     fv.set_filter(filt_coeff) # load the coefficients into the FIR filter
     
     # DEBUG Output
     print ip
-    print "1234567890123456"
 
 # The real work is done in this loop!
     while True:
         try:
-            tp = check_temperature(bus, addr_t)
-            t = fv.filt(tp)
-            dac_value = calculate_output(t)
-            dac_write(bus, addr_v, dac_value)
-            line2 = 'T:{0:2.4f}'.format(t) + ' D:{0:4d}'.format(dac_value)
-            display.write_string(1, line2)
-            time_w, time_c = handle_email(t, time_w, time_c)
+            # Collect
+            tp = check_temperature(bus, addr_t) # read temperature
+
+            # Process
+            t = fv.filt(tp) # filter temperature
+            dac_value = calculate_output(t) # calculate the DAC-Value from temperature
+            line2 = 'T:{0:2.4f}'.format(t) + ' D:{0:4d}'.format(dac_value) # Format the information for dipslay
+
+            # Output
+            dac_write(bus, addr_v, dac_value) # write the calculate value to the DAC
+            display.write_string(1, line2) # Write information to diplay
+            time_w, time_c = handle_email(t, time_w, time_c) # Call the email handler
+
+            # Wait
             time.sleep(sleeptime)
+
+            # Debug output
             print line2 + " " + str(tp) + " " + str(time_w) + " " + str(time_c)
         except KeyboardInterrupt:
             sys.stderr.write("\nReceived ctrl+c, will terminate\n")
