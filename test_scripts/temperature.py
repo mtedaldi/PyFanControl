@@ -28,7 +28,9 @@ def get_temperature(bus, addr):
   lo = ( temp & 0xFF00 ) >> 8
   lo = lo / 16.0
   temp = hi + lo
- 
+  sign = (temp & 0x0010) # Sign of the temperature
+  if sign <> 0: # If the temperature is <0
+      temp = temp - 256 # We have to fix the value thanks to 2s complement
   return temp
 
 

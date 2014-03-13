@@ -16,13 +16,13 @@
 # Program to control the temperature inside the cooled rack by
 # adjusting the fan speed.
 # What this program does:
-# - checking the temperature (not implemented yet)
-# - setting the DAC output voltage (not implemented yet)
-# - sending emails if temperature exceeds limits (not implemented yet)
-# - feeding the watchdog (not implemented yet)
+# - checking the temperature
+# - setting the DAC output voltage
+# - sending emails if temperature exceeds limits
+# - feeding the watchdog (not implemented)
 
 
-
+debug = False
 # **CONFIGURATION**
 # Settings, that can be changed
 #
@@ -244,7 +244,8 @@ def main():
     fv.set_filter(filt_coeff) # load the coefficients into the FIR filter
     
     # DEBUG Output
-    print ip
+    if debug:
+        print ip
 
 # The real work is done in this loop!
     while True:
@@ -255,7 +256,7 @@ def main():
             # Process
             t = fv.filt(tp) # filter temperature
             dac_value = calculate_output(t) # calculate the DAC-Value from temperature
-            line2 = 'T:{0:2.4f}'.format(t) + ' D:{0:4d}'.format(dac_value) # Format the information for dipslay
+            line2 = 'T:{0:2.2f}'.format(t) + chr(0xDF) + 'C D:{0:4d}'.format(dac_value) # Format the information for dipslay
 
             # Output
             dac_write(bus, addr_v, dac_value) # write the calculate value to the DAC
@@ -266,7 +267,8 @@ def main():
             time.sleep(sleeptime)
 
             # Debug output
-            print line2 + " " + str(tp) + " " + str(time_w) + " " + str(time_c)
+            if debug:
+                print line2 + " " + str(tp) + " " + str(time_w) + " " + str(time_c)
         except KeyboardInterrupt:
             sys.stderr.write("\nReceived ctrl+c, will terminate\n")
             sys.exit()
