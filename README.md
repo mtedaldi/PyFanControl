@@ -14,7 +14,7 @@ the voltage on the linear voltage input).
 
 This Setup is controled by a Raspberry Pi
 Connected to the RaspberryPi i2c are a temperature sensor 
-MCP9808 and a DAC MCP4725
+MCP9808, a DAC MCP4725 and a Display Midas MCCOG21605
 
 The software in the Pi will set the output voltage acording to 
 the measured temperature and also send warnings by email in
