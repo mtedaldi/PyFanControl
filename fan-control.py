@@ -23,6 +23,7 @@
 
 
 debug = False
+
 # **CONFIGURATION**
 # Settings, that can be changed
 #
