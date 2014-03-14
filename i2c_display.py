@@ -3,6 +3,8 @@
 # Functions to write data to a Display connected by i2c
 
 import smbus
+import time
+
 
 #Bus Nr and Address
 bus_nr = 1
@@ -13,13 +15,25 @@ class i2c_display:
     def __init__(self, d_bus, d_address):
         self.address = d_address
         self.bus = d_bus
-        self.bus.write_byte_data(self.address, 0x00, 0x38)
-        self.bus.write_byte_data(self.address, 0x00, 0x39) # Function Set, 8bit, 2lines, NoDoubleHeight, InstructionTable=1
-        self.bus.write_byte_data(self.address, 0x00, 0x14) # Bias=0 (1/5), AdjIntOsc=4
-        self.bus.write_byte_data(self.address, 0x00, 0x74) # Set Contrast bits 3..0 to 4
-        self.bus.write_byte_data(self.address, 0x00, 0x54) # Icon=off, booster=on, Contrast bits 5+4 = 0
-        self.bus.write_byte_data(self.address, 0x00, 0x6F) # Switch on follower circuit and set ratio to 7
-        self.bus.write_byte_data(self.address, 0x00, 0x0C) # Cursor on
+        self.write_data(0x00, 0x38)
+        self.write_data(0x00, 0x39) # Function Set, 8bit, 2lines, NoDoubleHeight, InstructionTable=1
+        self.write_data(0x00, 0x14) # Bias=0 (1/5), AdjIntOsc=4
+        self.write_data(0x00, 0x74) # Set Contrast bits 3..0 to 4
+        self.write_data(0x00, 0x54) # Icon=off, booster=on, Contrast bits 5+4 = 0
+        self.write_data(0x00, 0x6F) # Switch on follower circuit and set ratio to 7
+        self.write_data(0x00, 0x38) # Function Set, 8bit, 2lines, NoDoubleHeight, InstructionTable=0
+        self.write_data(0x00, 0x0C) # Cursor on
+        return
+
+
+    def write_data(self, rs, command):
+        busy = 1
+#        while busy <> 0:
+#            busy = self.bus.read_byte_data(self.address, 0x80)
+#            print busy
+#            busy = busy & 0x80
+        time.sleep(0.1)
+        self.bus.write_byte_data(self.address, rs, command)
         return
 
 
@@ -36,6 +50,7 @@ class i2c_display:
     def write_char(self, character):
         self.bus.write_byte_data(self.address, 0x40, ord(character))
         return
+
 
 # Name write_xy
 # Function: Write a character to a given position in DDRAM
@@ -63,14 +78,34 @@ class i2c_display:
             self.write_char(char)
         return
 
+
+    def write_cgchar(self, pos, data):
+        cgaddr = pos & 0x07
+        cgaddr = (cgaddr << 3) | 0x40
+        time.sleep(0.1)
+        self.bus.write_byte_data(self.address, 0x00, 0x38) # Function Set, 8bit, 2lines, NoDoubleHeight, InstructionTable=0
+        time.sleep(0.1)
+        self.bus.write_byte_data(self.address, 0x00, cgaddr) # select CGRAM address
+        time.sleep(0.1)
+        for datum in data:
+            self.bus.write_byte_data(self.address, 0x40, datum) # Write data, byte by byte (normally 8)
+        self.bus.write_byte_data(self.address, 0x00, 0x80) # return to DDRAM
+
+
 # Name: Main
 # The main program
 def main():
+    cust_char = [0x00, 0x10, 0x08, 0x04, 0x02, 0x01, 0x00, 0x00]
     bus = smbus.SMBus(bus_nr)
     disp = i2c_display(bus, address)
     disp.clear()
+    disp.write_cgchar(0, cust_char)
+    time.sleep(0.1)
     disp.write_string(0, "Test")
+    time.sleep(0.1)
     disp.write_xy(15, 0, "A")
+    time.sleep(0.1)
+    disp.write_xy(14, 0, chr(0x00))
     return
 
 
