@@ -66,6 +66,8 @@ DAC_max = 4095 # Maximal value of the DAC output
 temp_min = 20 # Temperature, at which the minimum value is on the DAC
 temp_max = 29 # Temperature, at which the maximum value is on the DAC
 
+hb_chars = ["_", "-", chr(0xFF), "-"] # characters for the hartbeat signal on display. Must be 4 chars!
+
 
 # **Code **
 # There should be no need to change anything below this line for configuration purposes!
@@ -248,6 +250,8 @@ def main():
     if debug:
         print ip
 
+    hb_cnt = 0
+
 # The real work is done in this loop!
     while True:
         try:
@@ -263,6 +267,12 @@ def main():
             dac_write(bus, addr_v, dac_value) # write the calculate value to the DAC
             display.write_string(1, line2) # Write information to diplay
             time_w, time_c = handle_email(t, time_w, time_c) # Call the email handler
+
+            # Write heartbeat signal
+            hb_cnt = hb_cnt + 1
+            if hb_cnt >= 4:
+                hb_cnt = 0
+            display.write_xy(15, 0, hb_chars[hb_cnt])
 
             # Wait
             time.sleep(sleeptime)
