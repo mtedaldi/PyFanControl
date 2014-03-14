@@ -37,6 +37,19 @@ class i2c_display:
         self.bus.write_byte_data(self.address, 0x40, ord(character))
         return
 
+# Name write_xy
+# Function: Write a character to a given position in DDRAM
+    def write_xy(self, col, line, character):
+        if line == 1:
+            command = (col & 0x3F) | 0xC0
+        else:
+            command = (col & 0x3F) | 0x80
+        self.bus.write_byte_data(self.address, 0x00, command)
+        self.write_char(character)
+        return
+
+
+
 # Name: write_string
 # Function: Write a string of characters to the display
     def write_string(self, line, text):
@@ -55,8 +68,9 @@ class i2c_display:
 def main():
     bus = smbus.SMBus(bus_nr)
     disp = i2c_display(bus, address)
-    disp.clear_display()
+    disp.clear()
     disp.write_string(0, "Test")
+    disp.write_xy(15, 0, "A")
     return
 
 
