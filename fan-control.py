@@ -66,7 +66,11 @@ DAC_max = 4095 # Maximal value of the DAC output
 temp_min = 20 # Temperature, at which the minimum value is on the DAC
 temp_max = 29 # Temperature, at which the maximum value is on the DAC
 
-hb_chars = ["_", "-", chr(0xFF), "-"] # characters for the hartbeat signal on display. Must be 4 chars!
+extra_chars = [
+        0x00, 0x10, 0x08, 0x04, 0x02, 0x01, 0x00, 0x00,
+        0x16, 0x15, 0x15, 0x16, 0x14, 0x14, 0x00, 0x00
+        ]
+hb_chars = ["/", "-", chr(0x00), "|"] # characters for the hartbeat signal on display. Must be 4 chars!
 
 
 # **Code **
@@ -82,6 +86,7 @@ import threading  # putting suff into threads so it does not block other functio
 import i2c_display
 import get_ip
 import fir
+
 
 # **Functions**
 # Name: send_mail
@@ -240,7 +245,9 @@ def main():
     display = i2c_display.i2c_display(bus, addr_d) # Initialze the display
     display.clear() # Clear the display
 
-    display.write_string(0, ip) # Write the IP-Address to the first line on the display
+    display.write_cgchar(0, extra_chars) # write the special characters into CGRAM
+
+    display.write_string(0, chr(0x01) + ip) # Write the IP-Address to the first line on the display
 
     t = check_temperature(bus, addr_t) # Read the tempearture a first time to initialize the filter
     fv = fir.filtr(len(filt_coeff), t) # Create the filter object
