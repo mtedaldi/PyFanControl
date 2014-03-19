@@ -13,19 +13,19 @@ def get_value(bus, addr):
 # Read a 16bit word from register 0x05
     hi, lo = bus.transaction(i2c.reading(addr, 2))[0]
     value = (hi << 8) | lo
-  return value
+    return value
 
 
 # the "Main" function which just calls get_temperature and prints the results to stdout
 def main():
-  i2c_bus = 1  
-  address = 0x19
-  with i2c.I2CMaster(i2c_bus) as bus:
-      voltage = get_value(bus, address)
-      print voltage
+    i2c_bus = 1  
+    address = 0x3E
+    with i2c.I2CMaster(i2c_bus) as bus:
+        voltage = get_value(bus, address)
+        print voltage
 
 
 # calling the "Main" function
 if __name__ == "__main__":
-        main();
+    main();
 
