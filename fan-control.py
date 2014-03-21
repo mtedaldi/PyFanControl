@@ -23,7 +23,7 @@
 # - checking the temperature
 # - setting the DAC output voltage
 # - sending emails if temperature exceeds limits
-# - feeding the watchdog (not implemented)
+# - feeding the watchdog 
 
 
 debug = False
@@ -89,6 +89,7 @@ import i2c_display
 import get_ip
 import fir
 import quick2wire.i2c as i2c
+import wdt
 
 # **Functions**
 # Name: send_mail
@@ -244,6 +245,11 @@ def main():
 
     ip = get_ip.get_ip() # Get the IP-Address
 
+    wd = wdt.wdt() # initialize the watchdog
+    wd.open() # open the watchdog file (and arm the watchdog)
+    wd.refresh() # give the watchdog a first kick
+
+
 #    bus = smbus.SMBus(bus_nr) # Make the bus object for communication with i2c devices
     with i2c.I2CMaster(bus_nr) as bus:
         display = i2c_display.i2c_display(bus, addr_d) # Initialze the display
@@ -266,6 +272,7 @@ def main():
 # The real work is done in this loop!
         while True:
             try:
+                wd.refresh() # Kick the watchdog
                 # Collect
                 tp = check_temperature(bus, addr_t) # read temperature
 
@@ -294,6 +301,8 @@ def main():
             except KeyboardInterrupt:
                 sys.stderr.write("\nReceived ctrl+c, will terminate\n")
                 sys.exit()
+                wd.deactivate() # Disarm the watchdog
+                wd.finish() # Close the file
             except:
                 sys.stderr.write("An unknow error has occured! Terminating...\n")
                 print( "Error: ", sys.exc_info()[0])
