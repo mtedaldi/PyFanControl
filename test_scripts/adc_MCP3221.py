@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
 # A simple Python command line tool to read volate values
 # from an MCP3221 ADC.
@@ -8,6 +8,7 @@
 import quick2wire.i2c as i2c
 import re
 import time
+import sys
 
 # Read the temperature from the given address
 def get_value(bus, addr):
@@ -23,9 +24,15 @@ def main():
     address = 0x4D
     with i2c.I2CMaster(i2c_bus) as bus:
         while True:
-            voltage = get_value(bus, address)
-            print(voltage)
-            time.sleep(0.2)
+            try:
+                voltage = 0
+                for i in range(0, 8):
+                    voltage = voltage + (get_value(bus, address) / 8)
+                print(int(voltage))
+                time.sleep(0.2)
+            except KeyboardInterrupt:
+                print("received ctrl+c, terminating")
+                sys.exit()
 
 
 # calling the "Main" function
