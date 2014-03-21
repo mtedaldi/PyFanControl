@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # A program to control the temperature inside the laser cabinet
 # by controling the speed of the fan
