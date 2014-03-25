@@ -15,15 +15,13 @@ class gpio:
     iodir_register = 0x00
     gpio_register = 0x0A
 
-    def __init__(self):
-        self.busnr = 1
+    def __init__(self, busnr=1, address=0x20):
+        self.addr = address
+        self.bus = self.bus = i2c.I2CMaster(busnr)
+        self.ioDir = self.__getReg(iodir_register)
+        self.ioData = self.__getReg(gpio_register)
         return
 
-    # Initialize the bus object.
-    # This should only be done if the bus has not been initialized externally.
-    def businit(self, busnr=1):
-        self.bus = i2c.I2CMaster(busnr)
-        return self.bus
 
 
     # Set the bus object for the i2c device
@@ -63,11 +61,31 @@ class gpio:
     def set_ioLineDirection(self, line, direction):
         lineMask = 2**line
         if direction == 0:
-            self.ioDir = self.ioDir & !lineMask
+            self.ioDir = self.ioDir & ~lineMask
         else:
             self.ioDir = self.ioDir | lineMask
         self.__setReg(iodir_register, self.ioDir)
         return self.ioDir
+
+     # Set the GPIO-register
+    def set_gpio(self, ioData):
+        self.ioData = ioData
+        self.__setReg(gpio_register, ioData)
+        return ioData
+
+    # Get the state of the gpio pins
+    def get_gpio(self):
+        self.ioData = self.__getReg(gpio_register)
+        return self.ioData
+
+    def set_gpioLine(self, line, state):
+        lineMask = 2**line
+        if state == 0:
+            self.ioData = self.ioData & ~lineMask
+        else:
+            self.ioData = self.ioData | lineMask
+        self.__setReg(gpio_register, self.ioData)
+        return self.ioData
 
 
 
@@ -95,17 +113,18 @@ class gpio:
 def main():
     i2c_bus = 1  
     address = 0x20
-    with i2c.I2CMaster(i2c_bus) as bus:
-        while True:
-            try:
-                voltage = 0
-                for i in range(0, 8):
-                    voltage = voltage + (get_value(bus, address) / 8)
-                print(int(voltage))
-                time.sleep(0.2)
-            except KeyboardInterrupt:
-                print("received ctrl+c, terminating")
-                sys.exit()
+    io = gpio(i2c_bus, address)
+    io.set_ioDir(0x00)
+    gpio = 0x00
+    while True:
+        try:
+            io.set_gpio(gpio)
+            gpio = ~gpio
+            print(gpio)
+            time.sleep(0.2)
+        except KeyboardInterrupt:
+            print("received ctrl+c, terminating")
+            sys.exit()
 
 
 # calling the "Main" function
