@@ -118,14 +118,14 @@ def main():
     io = gpdio()
     io.set_ioDirectionReg(0x00)
     gpio_r = 0x00
-    while True:
+    for i in range(1, 10000):
         try:
-            io.set_gpioLine(1, gpio_r)
             if gpio_r == 0:
                 gpio_r = 0xFF
             else:
                 gpio_r = 0x00
-            time.sleep(0.1)
+            io.set_gpioLine(1, gpio_r)
+            # time.sleep(0.1)
         except KeyboardInterrupt:
             print("received ctrl+c, terminating")
             sys.exit()
