@@ -11,15 +11,16 @@ import time
 import sys
 
 
-class gpio:
-    iodir_register = 0x00
-    gpio_register = 0x0A
+class gpdio:
+
 
     def __init__(self, busnr=1, address=0x20):
+        self.iodir_register = 0x00
+        self.gpio_register = 0x0A
         self.addr = address
         self.bus = self.bus = i2c.I2CMaster(busnr)
-        self.ioDir = self.__getReg(iodir_register)
-        self.ioData = self.__getReg(gpio_register)
+        self.ioDir = self.__getReg(self.iodir_register)
+        self.ioData = self.__getReg(self.gpio_register)
         return
 
 
@@ -47,13 +48,13 @@ class gpio:
     # Set the IO Direction Register (Default 0b1111 1111, 1=input, 0=output)
     def set_ioDirectionReg(self, ioDir):
         self.ioDir = ioDir
-        self.__setReg(iodir_register, ioDir)
+        self.__setReg(self.iodir_register, ioDir)
         return ioDir
 
 
     # Return the Value of the IO Direction Register in the MCP23009
     def get_ioDirectionReg(self):
-        self.ioDir = self.__getReg(iodir_register)
+        self.ioDir = self.__getReg(self.iodir_register)
         return self.ioDir
 
 
@@ -64,18 +65,18 @@ class gpio:
             self.ioDir = self.ioDir & ~lineMask
         else:
             self.ioDir = self.ioDir | lineMask
-        self.__setReg(iodir_register, self.ioDir)
+        self.__setReg(self.iodir_register, self.ioDir)
         return self.ioDir
 
-     # Set the GPIO-register
+    # Set the GPIO-register
     def set_gpio(self, ioData):
         self.ioData = ioData
-        self.__setReg(gpio_register, ioData)
+        self.__setReg(self.gpio_register, ioData)
         return ioData
 
     # Get the state of the gpio pins
     def get_gpio(self):
-        self.ioData = self.__getReg(gpio_register)
+        self.ioData = self.__getReg(self.gpio_register)
         return self.ioData
 
     def set_gpioLine(self, line, state):
@@ -84,7 +85,7 @@ class gpio:
             self.ioData = self.ioData & ~lineMask
         else:
             self.ioData = self.ioData | lineMask
-        self.__setReg(gpio_register, self.ioData)
+        self.__setReg(self.gpio_register, self.ioData)
         return self.ioData
 
 
@@ -92,7 +93,7 @@ class gpio:
 
 
     def __setReg(self, register, value):
-        self.bus.transaction(i2c.writing_bytes(self.addr, regsiter, value))
+        self.bus.transaction(i2c.writing_bytes(self.addr, register, value))
         return
 
 
@@ -113,15 +114,17 @@ class gpio:
 def main():
     i2c_bus = 1  
     address = 0x20
-    io = gpio(i2c_bus, address)
-    io.set_ioDir(0x00)
-    gpio = 0x00
+    io = gpdio()
+    io.set_ioDirectionReg(0x00)
+    gpio_r = 0x00
     while True:
         try:
-            io.set_gpio(gpio)
-            gpio = ~gpio
-            print(gpio)
-            time.sleep(0.2)
+            io.set_gpioLine(1, gpio_r)
+            if gpio_r == 0:
+                gpio_r = 0xFF
+            else:
+                gpio_r = 0x00
+            time.sleep(0.1)
         except KeyboardInterrupt:
             print("received ctrl+c, terminating")
             sys.exit()
