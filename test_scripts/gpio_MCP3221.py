@@ -3,6 +3,7 @@
 # A simple Python command line tool to read volate values
 # from an MCP3221 ADC.
 # (c) by Marco Tedaldi, 18.3.2014
+# License: MIT, http://opensource.org/licenses/MIT
 
 
 import quick2wire.i2c as i2c

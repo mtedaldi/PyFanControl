@@ -2,6 +2,9 @@
 
 # WDT: Watchdog Timer
 # A python 3 interface to use the linux watchdog timer
+#
+# (c) Marco Tedaldi <tedaldi@hifo.uzh.ch> 2014
+# License: MIT, http://opensource.org/licenses/MIT
 
 import time
 import os

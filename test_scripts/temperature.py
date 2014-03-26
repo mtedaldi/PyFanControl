@@ -3,7 +3,7 @@
 # A simple Python command line tool to read temperature values
 # from an MPC9808 integrated temperature sensor.
 # by Marco Tedaldi, 19.2.2014
-# GNU GPL V3 
+# License: MIT, http://opensource.org/licenses/MIT
 
 import smbus
 import sys

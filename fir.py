@@ -1,5 +1,9 @@
 # fir.py
 # A class tht implements fir filtering
+#
+# (c) Marco Tedaldi <tedaldi@hifo.uzh.ch>, 2014
+# License: MIT http://opensource.org/licenses/MIT
+#
 
 class filtr:
     def __init__(self, nelements=16, defvalue=25):

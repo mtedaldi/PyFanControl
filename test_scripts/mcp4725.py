@@ -3,7 +3,7 @@
 # A simple Python command line tool to vrite voltage 
 # values to an MCP4725 DAC.
 # by Marco Tedaldi, 24.2.2014
-# GNU GPL V3 
+# License: MIT, http://opensource.org/licenses/MIT
 
 import smbus
 import sys

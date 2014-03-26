@@ -1,6 +1,10 @@
 #!/usr/bin/python3
 #
 # Functions to write data to a Display connected by i2c
+#
+# (c) Marco Tedaldi <tedaldi@hifo.uzh.ch>, 2014
+# License: MIT, http://opensource.org/licenses/MIT
+#
 
 import time
 import quick2wire.i2c as i2c

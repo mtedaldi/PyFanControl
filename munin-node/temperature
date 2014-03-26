@@ -2,6 +2,9 @@
 
 # Simple munin-node module to read the temperature from
 # a sensor connected by i2c
+#
+# (c) Marco Tedaldi <tedaldi@hifo.uzh.ch>
+# License: MIT, http://opensource.org/licenses/MIT
 
 case $1 in
     config)

@@ -1,4 +1,7 @@
 #!/usr/bin/python
+# Python program that reads the temperature and displays it on the display
+#
+# (c) Marco Tedaldi, 2014
 
 import i2c_display
 import get_ip

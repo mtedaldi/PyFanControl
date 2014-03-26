@@ -1,4 +1,10 @@
 #!/usr/bin/python
+# A simple function to get the IP address of the
+# host. You have to use a reachable IP-Address!
+# This is to prevent getting 127.0.0.1 as result
+#
+# (c) Marco Tedaldi <tedaldi@hifo.uzh.ch>, 2014
+# License: MIT, http://opensource.org/licenses/MIT
 
 import socket
 

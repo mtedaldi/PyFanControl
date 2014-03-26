@@ -15,6 +15,7 @@
 #
 # Copyright Marco Tedaldi, University of Zurich, 2014
 # <marco.tedaldi@gmail.com>
+# License: MIT http://opensource.org/licenses/MIT
 # 
 # Goal:
 # Program to control the temperature inside the cooled rack by

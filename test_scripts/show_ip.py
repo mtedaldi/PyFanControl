@@ -1,4 +1,7 @@
 #!/usr/bin/python
+#
+# Python Program to display the IP-Address on the i2c display
+# (c) Marco Tedaldi, 2014
 
 import i2c_display
 import get_ip

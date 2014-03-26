@@ -1,5 +1,8 @@
 #!/usr/bin/python
 # Import smtplib for the actual sending function
+# (c) Marco Tedaldi, 2014
+# License: MIT http://opensource.org/licenses/MIT
+
 import smtplib
 
 # Import the email modules we'll need

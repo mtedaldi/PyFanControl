@@ -1,9 +1,9 @@
 #! /usr/bin/python3
 
-# A simple Python command line tool to read volate values
+# A simple Python command line tool to read voltage values
 # from an MCP3221 ADC.
 # by Marco Tedaldi, 18.3.2014
-# GNU GPL V3 
+# License: http://opensource.org/licenses/MIT 
 
 import quick2wire.i2c as i2c
 import re
