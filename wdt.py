@@ -9,8 +9,6 @@
 import time
 import os
 
-watchdog = "/dev/watchdog"
-
 
 # Watchdog timer class
 
@@ -58,34 +56,32 @@ class wdt:
         return
 
     def status(self):
-        print(self.ok)
         return self.ok
 
 
 
 
 
-
+# Main function. Here, mainly as test
 
 def main():
-    wd = wdt()
-    wd.open()
-    wd.status()
+    wd = wdt() # Create watchdog object
+    wd.open()  # Open the watchdog file
+    print(wd.status()) # print the status (if watchdog could be activated)
     while True:
         try:
-            wd.refresh()
-            print("Watchdog kicked")
-            wd.status()
-            time.sleep(1.0)
-        except KeyboardInterrupt:
+            wd.refresh()  # Retrigger the watchdog
+            print("Watchdog kicked") # Talk about what you did!
+            time.sleep(1.0)  # Wait for one second befor kicking the watchdog again
+        except KeyboardInterrupt: # If the user presses ctrl+c
             print("ctrl+c pressed, will terminate")
-            wd.deactivate()
-            wd.finish()
-            os.exit()
+            wd.deactivate() # Deactivate the watchdog so the system is not rebooted
+            wd.finish()     # release the file handle
+            os.exit()       # exit
 
 
 
-
+# Only run main, if this program is called firectly (not imported by another program)
 
 if __name__ == "__main__":
         main();
