@@ -189,8 +189,7 @@ def calculate_output(temperature):
             output = (((temperature - temp_min)/(temp_max - temp_min))*(DAC_max-DAC_min))+DAC_min
     return int(output)
 
-def write_line1(disp):
-    ip = get_ip.get_ip()
+def write_line1(disp, ip):
     disp.write_cgchar(0, extra_chars) # write the special characters into CGRAM
     disp.write_string(0, chr(0x01) + ip) # Write the IP-Address to the first line on the display
     return
@@ -261,10 +260,7 @@ def main():
         display = i2c_display.i2c_display(bus, addr_d) # Initialze the display
         display.clear() # Clear the display
 
-#        display.write_cgchar(0, extra_chars) # write the special characters into CGRAM
-
-#        display.write_string(0, chr(0x01) + ip) # Write the IP-Address to the first line on the display
-        write_line1(display)
+        write_line1(display, ip)
         t = check_temperature(bus, addr_t) # Read the tempearture a first time to initialize the filter
         fv = fir.filtr(len(filt_coeff), t) # Create the filter object
         fv.set_filter(filt_coeff) # load the coefficients into the FIR filter
@@ -299,8 +295,9 @@ def main():
                 display.write_xy(15, 0, hb_chars[hb_cnt % 4])
 
                 if (hb_cnt % 600) == 0:  # Every 600 iterations (5min)
-                    write_line1(display) # Update CGRAM and IP Address
-
+                    ip = get_ip.get_ip()
+                if (hb_cnt % 20) == 0:
+                    write_line1(display, ip) # Update CGRAM and IP Address
 
                 # Wait
                 time.sleep(sleeptime)

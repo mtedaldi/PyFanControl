@@ -6,7 +6,6 @@
 #
 
 class filtr:
-
     # The init method is called on creation of the object
     def __init__(self, nelements=16, defvalue=25):
         self.history = []
@@ -40,4 +39,5 @@ class filtr:
             for i in range(len(self.history), len(self.f)):
                 self.history.append(self.history[i - 1])
         return
+
 
