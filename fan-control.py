@@ -91,7 +91,8 @@ import i2c_display
 import get_ip
 import fir
 import quick2wire.i2c as i2c
-import wdt
+import wdt # Watchdog timer
+import os # for file stuff
 
 # **Functions**
 # Name: send_mail
@@ -313,6 +314,7 @@ def main():
                 wd.deactivate() # Disarm the watchdog
                 wd.finish() # Close the file
                 syslog.syslog("fan-control: Program terminated by keyboard interrupt") # Write Message to syslog
+                os.sync() # write all open changes to disk
                 sys.exit()
             except:
                 sys.stderr.write("An unknow error has occured! Terminating...\n")
@@ -323,6 +325,7 @@ def main():
                 syslog.syslog(syslog.LOG_ERR, "fan-control:" + str(sys.exc_info()[0]))
                 syslog.syslog(syslog.LOG_ERR, "fan-control:" + str(sys.exc_info()[1]))
                 syslog.syslog(syslog.LOG_ERR, "fan-control:" + str(sys.exc_info()[2]))
+                os.sync() # write all pending data to disk
                 sys.exit(1)
 
 
