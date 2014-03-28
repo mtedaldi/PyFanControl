@@ -6,8 +6,9 @@
 # (c) Marco Tedaldi <tedaldi@hifo.uzh.ch> 2014
 # License: MIT, http://opensource.org/licenses/MIT
 
-import time
-import os
+import time # for the delay inside main
+import sys # needed for exit
+import os # needed for file handling
 
 
 # Watchdog timer class
@@ -52,8 +53,12 @@ class wdt:
 
     # close (Don't forget the deactivate, before closing!
     def finish(self):
-        self.wdthandle.close()
-        return
+        try:
+            self.wdthandle.close()
+            ok = True
+        except:
+            ok = False
+        return ok
 
     def status(self):
         return self.ok
@@ -77,11 +82,11 @@ def main():
             print("ctrl+c pressed, will terminate")
             wd.deactivate() # Deactivate the watchdog so the system is not rebooted
             wd.finish()     # release the file handle
-            os.exit()       # exit
+            sys.exit()       # exit
 
 
 
-# Only run main, if this program is called firectly (not imported by another program)
+# Only run main, if this program is called directly (not imported by another program)
 
 if __name__ == "__main__":
         main();
