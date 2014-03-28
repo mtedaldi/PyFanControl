@@ -83,6 +83,7 @@ hb_chars = ["/", "-", chr(0x00), "|"] # characters for the hartbeat signal on di
 
 # **Imports**
 import sys        # writing to stderr and exiting cleanly
+import syslog     # For writing data to syslog
 import time       # sleep()
 import smtplib    # Sending the mails
 from email.mime.text import MIMEText 
@@ -270,6 +271,7 @@ def main():
             print(ip)
 
         hb_cnt = 0
+        syslog.syslog("fan-control: Program started")
 
 # The real work is done in this loop!
         while True:
@@ -307,14 +309,20 @@ def main():
                     print( line2 + " " + str(tp) + " " + str(time_w) + " " + str(time_c) )
             except KeyboardInterrupt:
                 sys.stderr.write("\nReceived ctrl+c, will terminate\n")
-                sys.exit()
+                #sys.exit()
                 wd.deactivate() # Disarm the watchdog
                 wd.finish() # Close the file
+                syslog.syslog("fan-control: Program terminated by keyboard interrupt")
+                sys.exit()
             except:
                 sys.stderr.write("An unknow error has occured! Terminating...\n")
                 print( "Error: ", sys.exc_info()[0])
                 print( "Error: ", sys.exc_info()[1])
                 print( "Error: ", sys.exc_info()[2])
+                syslog.syslog(syslog.LOG_ERR, "fan-control: Terminating because of error!")
+                syslog.syslog(syslog.LOG_ERR, "fan-control:" + str(sys.exc_info()[0]))
+                syslog.syslog(syslog.LOG_ERR, "fan-control:" + str(sys.exc_info()[1]))
+                syslog.syslog(syslog.LOG_ERR, "fan-control:" + str(sys.exc_info()[2]))
                 sys.exit(1)
 
 
