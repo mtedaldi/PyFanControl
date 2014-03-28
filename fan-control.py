@@ -312,14 +312,14 @@ def main():
                 #sys.exit()
                 wd.deactivate() # Disarm the watchdog
                 wd.finish() # Close the file
-                syslog.syslog("fan-control: Program terminated by keyboard interrupt")
+                syslog.syslog("fan-control: Program terminated by keyboard interrupt") # Write Message to syslog
                 sys.exit()
             except:
                 sys.stderr.write("An unknow error has occured! Terminating...\n")
                 print( "Error: ", sys.exc_info()[0])
                 print( "Error: ", sys.exc_info()[1])
                 print( "Error: ", sys.exc_info()[2])
-                syslog.syslog(syslog.LOG_ERR, "fan-control: Terminating because of error!")
+                syslog.syslog(syslog.LOG_ERR, "fan-control: Terminating because of error!") # Write error to syslog
                 syslog.syslog(syslog.LOG_ERR, "fan-control:" + str(sys.exc_info()[0]))
                 syslog.syslog(syslog.LOG_ERR, "fan-control:" + str(sys.exc_info()[1]))
                 syslog.syslog(syslog.LOG_ERR, "fan-control:" + str(sys.exc_info()[2]))
