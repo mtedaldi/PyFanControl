@@ -10,7 +10,7 @@ import time
 import quick2wire.i2c as i2c
 
 #Bus Nr and Address
-bus_nr = 1
+bus_nr = 1 # Use Bus number 1 (on Raspi Rev 1, bus 0 is preferable)
 address = 0x3E
 
 
@@ -18,7 +18,7 @@ class i2c_display:
     def __init__(self, d_bus, d_address):
         self.address = d_address
         self.bus = d_bus
-        self.write_data(0x00, 0x38)
+        self.write_data(0x00, 0x38) # I don'6 know if this even makes sense. It's from the example!
         self.write_data(0x00, 0x39) # Function Set, 8bit, 2lines, NoDoubleHeight, InstructionTable=1
         self.write_data(0x00, 0x14) # Bias=0 (1/5), AdjIntOsc=4
         self.write_data(0x00, 0x74) # Set Contrast bits 3..0 to 4
@@ -30,12 +30,9 @@ class i2c_display:
 
 
     def write_data(self, rs, command):
-        busy = 1
-#        while busy <> 0:
-#            busy = self.bus.read_byte_data(self.address, 0x80)
-#            print busy
-#            busy = busy & 0x80
-        time.sleep(0.1)
+        time.sleep(0.01) # Wait 10ms before writing.
+                         # Since the used controler does not allow read acces on i2c, we can't poll
+                         # the busy flag.
         self.bus.transaction(i2c.writing_bytes(self.address, rs, command))
         return
 
@@ -44,7 +41,7 @@ class i2c_display:
 # Name: clear
 # Function: Write the command "0x01" to the display which clears the display
     def clear(self):
-        self.bus.transaction(i2c.writing_bytes(self.address, 0x00, 0x01))
+        self.write_data(0x00, 0x01)
         return
 
 
@@ -95,6 +92,7 @@ class i2c_display:
         self.bus.transaction(i2c.writing_bytes(self.address, 0x00, 0x80)) # return to DDRAM
 
 
+
 # Name: Main
 # The main program
 def main():
@@ -110,6 +108,9 @@ def main():
         disp.write_xy(15, 0, "A")
         time.sleep(0.1)
         disp.write_xy(14, 0, chr(0x00))
+        while 1:
+            response = disp.get_status()
+            print(response)
         return
 
 
