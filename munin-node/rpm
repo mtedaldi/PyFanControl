@@ -13,8 +13,8 @@ graph_title Fan Speed
 graph_vlabel speed
 speed.label rpm
 graph_category ambient
-speed.warning 48
-speed.critical 51
+speed.warning 1440
+speed.critical 1550
 EOM
 	exit 0;;
 esac
