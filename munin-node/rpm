@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Simple munin-node module to read the temperature from
+# a sensor connected by i2c
+#
+# (c) Marco Tedaldi <tedaldi@hifo.uzh.ch>
+# License: MIT, http://opensource.org/licenses/MIT
+
+case $1 in
+    config)
+        cat <<'EOM'
+graph_title Fan Speed
+graph_vlabel speed
+speed.label rpm
+graph_category sensors
+speed.warning 48
+speed.critical 51
+EOM
+	exit 0;;
+esac
+printf "speed.value "
+cat /run/lock/dacval
+
