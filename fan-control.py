@@ -55,7 +55,7 @@ body_warn = "This is just a warning that temperature in the rack in H37 has exce
 warn_repeat = 60*60*24 / sleeptime # Seconds after which a warning is sent again
 
 # rcp_crit: a list of addresses to send a critical temperature warning
-rcp_crit = ['tedaldi@hifo.uzh.ch']
+rcp_crit = ['tedaldi@hifo.uzh.ch', 'kasper@hifo.uzh.ch']
 subj_crit = "CRITICAL! Temperature in laser cabinet H37 too high!"
 body_crit = "The temperature in the laser rack in H37 has exceeded CRITICAL level of " + str(temp_crit) + " degree C!"
 body_crit = body_crit + "\nImmediate action required!"

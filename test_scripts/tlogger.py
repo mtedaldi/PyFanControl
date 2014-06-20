@@ -55,8 +55,13 @@ def main():
             temperature = get_temperature(bus, address)
 #            temperature2 = get_temperature(bus, 0x19)
             timeelapsed = time.time() - starttime
+<<<<<<< HEAD
             print(str(temperature) + " ; " + str(timeelapsed))
             time.sleep(0.9977)
+=======
+            print(str(temperature) + ";" + str(timeelapsed))
+            time.sleep(0.995)
+>>>>>>> edd4d2de515e9b254fc72dead28d858688347df8
     except KeyboardInterrupt:
         sys.stderr.write("\nReceived ctrl+c, will terminate\n")
         sys.exit()
