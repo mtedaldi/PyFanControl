@@ -10,7 +10,7 @@ temperature.py - the python program that reads and returns the temperature
 99-temperature.conf - a config file to be placed in /etc/munin/plugin-conf.d
 
 Installation:
-copy temperature and temperature to
+copy temperature and temperature.py to
 /usr/share/munin/plugins
 Change settings in temperature.py to meet your needs
 
