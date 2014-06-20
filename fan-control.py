@@ -209,7 +209,7 @@ def fs_sync():
 # Writes the value written to the DAC to a file
 def file_write_dac(path, dacval):
     with open(path, 'w') as dacfile:
-        rpm = dacval/4096*25+30
+        rpm = (dacval/4096*25+30)*30
         dacfile.write(str(rpm))
     return
 
