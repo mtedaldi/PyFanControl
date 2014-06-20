@@ -50,11 +50,12 @@ def main():
         sys.exit()
     try:
         starttime = time.time()
-        print("Start time ; "+ str(starttime))
+        print("Temperature; time; Start time ; "+ str(starttime))
         for i in range(n):
             temperature = get_temperature(bus, address)
+#            temperature2 = get_temperature(bus, 0x19)
             timeelapsed = time.time() - starttime
-            print(str(temperature) + ";" + str(timeelapsed))
+            print(str(temperature) + " ; " + str(timeelapsed))
             time.sleep(0.9977)
     except KeyboardInterrupt:
         sys.stderr.write("\nReceived ctrl+c, will terminate\n")
