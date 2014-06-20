@@ -68,7 +68,7 @@ smtp_srv = 'smtp.uzh.ch' # Mail server to use to deliver the messages
 DAC_min = 0 # Minimal value of the DAC output
 DAC_max = 4095 # Maximal value of the DAC output
 
-temp_min = 20 # Temperature, at which the minimum value is on the DAC
+temp_min = 21 # Temperature, at which the minimum value is on the DAC
 temp_max = 29 # Temperature, at which the maximum value is on the DAC
 
 extra_chars = [
@@ -76,6 +76,8 @@ extra_chars = [
         0x16, 0x15, 0x15, 0x16, 0x14, 0x14, 0x00, 0x00
         ]
 hb_chars = ["/", "-", chr(0x00), "|"] # characters for the hartbeat signal on display. Must be 4 chars!
+
+dacval_file = '/run/lock/dacval'
 
 
 # **Code **
@@ -203,6 +205,13 @@ def fs_sync():
     return
 
 
+# Writes the value written to the DAC to a file
+def file_write_dac(path, dacval):
+    with open(path, 'w') as dacfile:
+        rpm = dacval/4096*25+30
+        dacfile.write(str(rpm))
+    return
+
 
 
 def main():
@@ -306,8 +315,9 @@ def main():
 
                 if (hb_cnt % 600) == 0:  # Every 600 iterations (5min)
                     ip = get_ip.get_ip()
-                if (hb_cnt % 20) == 0:
+                if (hb_cnt % 20) == 0:   # Every 20 iterations (10s)
                     write_line1(display, ip) # Update CGRAM and IP Address
+                    file_write_dac(dacval_file, dac_value)
 
                 # Wait
                 time.sleep(sleeptime)
