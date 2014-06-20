@@ -12,7 +12,7 @@ case $1 in
 graph_title Temperature Sensor
 graph_vlabel temperature
 temperature.label temperature
-graph_category sensors
+graph_category ambient
 temperature.warning 25
 temperature.critical 28
 EOM

@@ -12,7 +12,7 @@ case $1 in
 graph_title Fan Speed
 graph_vlabel speed
 speed.label rpm
-graph_category sensors
+graph_category ambient
 speed.warning 48
 speed.critical 51
 EOM
