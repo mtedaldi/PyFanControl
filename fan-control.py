@@ -95,6 +95,7 @@ import fir
 import quick2wire.i2c as i2c
 import wdt # Watchdog timer
 import ctypes 
+from os import unlink # import "unlink" to delete the file at the end
 
 # **Functions**
 # Name: send_mail
@@ -331,6 +332,7 @@ def main():
                 wd.deactivate() # Disarm the watchdog
                 wd.finish() # Close the file
                 syslog.syslog("fan-control: Program terminated by keyboard interrupt") # Write Message to syslog
+                unlink(dacval_file) #remove the dacval file
                 # os.sync() # write all open changes to disk
                 fs_sync()
                 sys.exit()
@@ -344,6 +346,7 @@ def main():
                 syslog.syslog(syslog.LOG_ERR, "fan-control:" + str(sys.exc_info()[1]))
                 syslog.syslog(syslog.LOG_ERR, "fan-control:" + str(sys.exc_info()[2]))
                 # os.sync() # write all pending data to disk
+                unlink(dacval_file) #remove the dacval file
                 fs_sync()
                 sys.exit(1)
 
