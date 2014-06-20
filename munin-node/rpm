@@ -20,4 +20,5 @@ EOM
 esac
 printf "speed.value "
 cat /run/lock/dacval
+printf "\n"
 
