@@ -17,4 +17,6 @@ def get_ip():
     return ip
 
 
+if __name__ == "__main__":
+        print(get_ip())
 
