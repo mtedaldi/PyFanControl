@@ -8,6 +8,7 @@
 import smbus
 import sys
 import getopt
+from time import sleep
 # Use SMBus 1 ("0" in rev. 1 Boards) on the GPIO-Connector
 bus = smbus.SMBus(1)
 
@@ -15,6 +16,7 @@ bus = smbus.SMBus(1)
 # Enter the Address here that you have set on A0-A3
 # Don't forget to 0x18 because of preset bits
 address = 0x19 # I2C address of MCP23017
+averaging = 100 # how many reads should be averaged
 
 
 # Read the temperature from the given address
@@ -34,9 +36,14 @@ def get_temperature(addr):
 
 # the "Main" function which just calls get_temperature and prints the results to stdout
 def main():
-  temperature = get_temperature(address)
-  print temperature
-  return
+    tmpsum = 0
+    for i in range(averaging): 
+        temperature = get_temperature(address)
+        tmpsum = tmpsum + temperature
+        sleep(0.01)
+    avgtemperature = tmpsum/averaging
+    print avgtemperature
+    return
 
 # calling the "Main" function
 main();
