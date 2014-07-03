@@ -68,8 +68,8 @@ smtp_srv = 'smtp.uzh.ch' # Mail server to use to deliver the messages
 DAC_min = 0 # Minimal value of the DAC output
 DAC_max = 4095 # Maximal value of the DAC output
 
-temp_min = 22 # Temperature, at which the minimum value is on the DAC
-temp_max = 29 # Temperature, at which the maximum value is on the DAC
+temp_min = 19 # Temperature, at which the minimum value is on the DAC
+temp_max = 30 # Temperature, at which the maximum value is on the DAC
 
 extra_chars = [
         0x00, 0x10, 0x08, 0x04, 0x02, 0x01, 0x00, 0x00,
