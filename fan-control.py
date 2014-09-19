@@ -70,6 +70,8 @@ DAC_max = 4095 # Maximal value of the DAC output
 
 temp_min = 19 # Temperature, at which the minimum value is on the DAC
 temp_max = 30 # Temperature, at which the maximum value is on the DAC
+temp_target = 22 # Target Temperature
+integral_factor = 0.001 # Factor, by which the temperature difference is multiplied
 
 extra_chars = [
         0x00, 0x10, 0x08, 0x04, 0x02, 0x01, 0x00, 0x00,
@@ -184,7 +186,9 @@ def sanitize_dac_value(value):
 
 # Name: calculate_output
 # Function: calculates the output value dependent on the temperature
-def calculate_output(temperature):
+def calculate_output(temperature, temp_integral):
+    temp_integral = temp_integral + ((temperature - temp_target)*integral_factor)
+    temperature = temperature + temp_integral
     if temperature < temp_min:
         output = DAC_min
     else:
@@ -192,7 +196,7 @@ def calculate_output(temperature):
             output = DAC_max
         else:
             output = (((temperature - temp_min)/(temp_max - temp_min))*(DAC_max-DAC_min))+DAC_min
-    return int(output)
+    return int(output), temp_integral
 
 def write_line1(disp, ip):
     disp.write_cgchar(0, extra_chars) # write the special characters into CGRAM
@@ -218,6 +222,7 @@ def file_write_dac(path, dacval):
 def main():
     # ***Initalize the variables***
     # The filter coefficients for the FIR-Filter
+    i = 0 # temperature integral
     filt_coeff = [
             -0.00406900049466597,
             0.0014901583160827512,
@@ -300,7 +305,7 @@ def main():
 
                 # Process
                 t = fv.filt(tp) # filter temperature
-                dac_value = calculate_output(t) # calculate the DAC-Value from temperature
+                dac_value, i = calculate_output(t, i) # calculate the DAC-Value from temperature
                 line2 = 'T:{0:2.2f}'.format(t) + chr(0xDF) + 'C D:{0:4d}'.format(dac_value) # Format the information for dipslay
 
                 # Output
