@@ -188,6 +188,10 @@ def sanitize_dac_value(value):
 # Function: calculates the output value dependent on the temperature
 def calculate_output(temperature, temp_integral):
     temp_integral = temp_integral + ((temperature - temp_target)*integral_factor)
+    if temp_integral > 1:
+        temp_integral = 1
+    if temp_integral < -1:
+        temp_integral = -1
     temperature = temperature + temp_integral
     if temperature < temp_min:
         output = DAC_min
