@@ -70,8 +70,8 @@ DAC_max = 4095 # Maximal value of the DAC output
 
 temp_min = 19 # Temperature, at which the minimum value is on the DAC
 temp_max = 30 # Temperature, at which the maximum value is on the DAC
-temp_target = 22 # Target Temperature
-integral_factor = 0.001 # Factor, by which the temperature difference is multiplied
+temp_target = 22.5 # Target Temperature
+integral_factor = 0.005 # Factor, by which the temperature difference is multiplied
 
 extra_chars = [
         0x00, 0x10, 0x08, 0x04, 0x02, 0x01, 0x00, 0x00,
