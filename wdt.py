@@ -17,6 +17,7 @@ import os # needed for file handling
 class wdt:
     def __init__(self, watchdogfile="/dev/watchdog" ):
         self.ok = os.path.exists(watchdogfile)
+        self.watchdog = watchdogfile
         if self.ok:
             self.ok = os.access(watchdogfile, os.W_OK)
         return
@@ -27,7 +28,7 @@ class wdt:
     def open(self):
         if self.ok:
             try:
-                self.wdthandle = open(watchdog, "w")
+                self.wdthandle = open(self.watchdog, "w")
             except:
                 self.ok = False
         return self.ok
@@ -38,27 +39,27 @@ class wdt:
             self.wdthandle.write("V")
             self.wdthandle.flush()
         except:
-            ok = False
-        return ok
+            self.ok = False
+        return self.ok
 
     # refresh the watchdog
     def refresh(self):
         try:
             self.wdthandle.write(" ")
             self.wdthandle.flush()
-            ok = True
+            self.ok = True
         except:
-            ok = False
-        return ok
+            self.ok = False
+        return self.ok
 
     # close (Don't forget the deactivate, before closing!
     def finish(self):
         try:
             self.wdthandle.close()
-            ok = True
+            self.ok = True
         except:
-            ok = False
-        return ok
+            self.ok = False
+        return self.ok
 
     def status(self):
         return self.ok
@@ -71,12 +72,14 @@ class wdt:
 
 def main():
     wd = wdt() # Create watchdog object
+    print(wd.status()) # print the status
     wd.open()  # Open the watchdog file
     print(wd.status()) # print the status (if watchdog could be activated)
     while True:
         try:
             wd.refresh()  # Retrigger the watchdog
             print("Watchdog kicked") # Talk about what you did!
+            print(wd.status())
             time.sleep(1.0)  # Wait for one second befor kicking the watchdog again
         except KeyboardInterrupt: # If the user presses ctrl+c
             print("ctrl+c pressed, will terminate")
